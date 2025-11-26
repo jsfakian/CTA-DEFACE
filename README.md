@@ -1,80 +1,322 @@
-# CTA-DEFACE
+# 🧠 CTA-DEFACE — CPU-Only Defacing Pipeline (DICOM ⇄ NIfTI)
 
-## Deep learning-based defacing tool for CT angiography: CTA-DEFACE
+CTA-DEFACE is a complete, automated pipeline for defacing CT head/neck scans using **nnUNet-v2**–based segmentation and a custom image-blending routine that preserves anatomical quality while removing facial identifiers.
 
+This repository extends the original work with:
 
-This repository provides an easy to use tool based on `nnUNet` for automated de-identification of CT angiography images. 
+- ✔ **CPU-only pipeline (no GPU required)**
+- ✔ Fully automated **multi-case batch pipeline**
+- ✔ Complete **DICOM → NIfTI → Deface → DICOM** workflow
+- ✔ Header-preserving reconstruction (**no anonymization**)
+- ✔ Robust multi-series handling
+- ✔ Slice-mismatch tolerance and error-proof execution
+- ✔ Clean working-directory structure
 
-If you are using CTA-DEFACE, please cite the following publication:
+---
 
+# 📦 Features
 
-```shell
-Mahmutoglu MA, Rastogi A, Schell M, Foltyn-Dumitru M, Baumgartner M, Maier-Hein KH, Deike-Hofmann K, Radbruch A, Bendszus M, Brugnara G, Vollmuth P. 
-Deep learning-based defacing tool for CT angiography: CTA-DEFACE. 
-Eur Radiol Exp. 2024 Oct 9;8(1):111. 
+### 🔹 High-quality craniofacial defacing  
+Uses nnUNetv2 segmentation to remove facial voxels while preserving diagnostic information.
 
-doi: 10.1186/s41747-024-00510-9.
+### 🔹 CPU-only support  
+No CUDA or GPU required (forced via `CUDA_VISIBLE_DEVICES=""`).
+
+### 🔹 Multi-directory batch processing  
+Automatically detects multiple DICOM case folders and processes each independently.
+
+### 🔹 Full DICOM header preservation  
+Generates defaced DICOM slices with original metadata and UIDs untouched.
+
+### 🔹 Robust on problematic datasets  
+Handles known CTA-DEFACE model quirks (e.g. `_0000.nii.gz` crash) and continues safely.
+
+### 🔹 Tolerant to slice mismatches  
+If a defaced NIfTI has fewer slices than the DICOM series, overlapping slices are updated while remaining slices are preserved.
+
+---
+
+# 📁 Repository Structure
+
+```
+CTA-DEFACE/
+│
+├── cta_deface_pipeline_multi.py     # Multi-case batch pipeline (recommended)
+├── cta_deface_convert.py            # Single-case DICOM⇄NIfTI converter
+├── run_CTA-DEFACE.py                # Main defacing script (CPU)
+│
+├── models/                          # nnUNetv2 pre-trained models
+├── scripts/                         # Setup utilities
+│
+└── README.md                        # (this file)
 ```
 
-![alt text](https://github.com/CCI-Bonn/CTA-DEFACE/blob/main/CTA-DEFACE_example.png?raw=true)
+---
 
-The example image above was rendered in 3D Slicer software using "CT-Muscle" display preset. 
+# ⚙️ Installation
 
-
-Key points:
-*	The developed ANN model (CTA-DEFACE) automatically generates facemasks for CT angiography images and subtracts them py replacing the mask with the 10th percentile in the CT image (representing void space/air). 
-*	By means of graphics processing unit optimization, our model ensures rapid processing of medical images.
-*	Our model underwent external validation, underscoring its reliability for real-world application.
-
-
-# Installation Instructions 
-
-
-
-Since our model is heavily dependend on nnUNet, please visit their repository for installation instructions and also cite their paper:
-
-```shell
-Isensee, F., Jaeger, P. F., Kohl, S. A., Petersen, J., & Maier-Hein, K. H. (2021). nnU-Net: a self-configuring 
-method for deep learning-based biomedical image segmentation. Nature methods, 18(2), 203-211.
-
-```
-
-
-
-# How to use it 
-
-
-Please install nnunetv2 following the instructions here:
-
-```shell
-https://github.com/MIC-DKFZ/nnUNet
-```
-
-Clone this repository and add your images to the input folder. 
-Create `input`, `output` and `model` folders in the same folder as the `run_CTA-DEFACE.py`.
+### 1. Clone the repository
 
 ```bash
-mkdir input
-mkdir output
-mkdir model
+git clone https://github.com/jsfakian/CTA-DEFACE.git
+cd CTA-DEFACE
 ```
 
-Download the trained model from the following link and put the `Dataset001_DEFACE` folder inside the `model` folder.
+### 2. Create CPU-only Python environment
 
 ```bash
-https://drive.google.com/drive/folders/1k4o35Dkl7PWd2yvHqWA2ia-BNKrWBrqg?usp=sharing
+python3 -m venv .venv_cta_deface
+source .venv_cta_deface/bin/activate
 ```
 
-Make sure the CT or CTA input image names end with `_0000.nii.gz`, which is important to be recognized by the model. 
+### 3. Install requirements
 
 ```bash
-python run_CTA-DEFACE.py -i input -o output
+pip install -r requirements_cpu.txt
 ```
 
-The above command will look for all nifti files (*.nii.gz) in the `input` folder and save the <ins>defaced NIfTI files</ins> and the <ins>face mask</ins> in the `output` folder. 
+### 4. Download nnUNetv2 pre-trained model(s)
 
-CAVE: Our model and python code was designed to run on `Ubuntu` in a preinstalled nnunet environment, please adjust accordingly in case you intend to use the code in other operating systems.
+```bash
+bash scripts/download_nnunet_cpu.sh
+```
+
+This automatically downloads models into the correct nnUNetv2 folder structure.
+
+---
+
+# 🚀 Quick Start (Single Case)
+
+To deface a **single DICOM directory**:
+
+```bash
+python cta_deface_pipeline_multi.py \
+    -i dicom_input/ \
+    -o dicom_output/
+```
+
+---
+
+# 🚀 Batch Mode (Multiple DICOM Case Folders)
+
+If your dataset contains multiple case directories:
+
+```
+dicom_root/
+    case01/
+    case02/
+    case03/
+```
+
+Run:
+
+```bash
+python cta_deface_pipeline_multi.py \
+    -i dicom_root \
+    -o dicom_output \
+    --nifti-root-out nifti_output
+```
+
+Output layout:
+
+```
+dicom_output/
+    case01/
+    case02/
+    case03/
+
+nifti_output/
+    case01/
+    case02/
+    case03/
+```
+
+---
+
+# ⚡ Pipeline Overview
+
+Below is a simplified overview of CTA-DEFACE’s batch pipeline.
+
+---
+
+## **1. DICOM → NIfTI**
+
+```
+┌────────────────────────────┐
+│  Input DICOM series        │
+└──────────────┬─────────────┘
+               ▼
+        SimpleITK reader
+               ▼
+┌────────────────────────────┐
+│  SeriesUID_0000.nii.gz     │
+└────────────────────────────┘
+```
+
+---
+
+## **2. Defacing (CTA-DEFACE / nnUNetv2 CPU)**
+
+```
+┌────────────────────────────┐
+│  input NIfTI (_0000)       │
+└──────────────┬─────────────┘
+               ▼
+      nnUNetv2 segmentation
+               ▼
+      Face mask generation
+               ▼
+    Image–mask blending logic
+               ▼
+┌────────────────────────────┐
+│ defaced.nii.gz             │
+│ defaced_mask.nii.gz        │
+└────────────────────────────┘
+```
+
+---
+
+## **3. Select Correct Output**
+
+```
+nifti_out/
+ ├── <SeriesUID>.nii.gz         ← selected (defaced image)
+ └── <SeriesUID>_mask.nii.gz    ← ignored
+```
+
+---
+
+## **4. NIfTI → DICOM (Header-Preserving Reconstruction)**
+
+```
+┌────────────────────────────┐
+│ Reference DICOM series     │
+└──────────────┬─────────────┘
+               ▼ match slice count
+               ▼ or closest series
+┌────────────────────────────┐
+│ Defaced NIfTI (3D)         │
+└──────────────┬─────────────┘
+               ▼
+  Replace PixelData only
+  Preserve all metadata
+               ▼
+┌──────────────────────────────┐
+│ Defaced DICOM series          │
+└──────────────────────────────┘
+```
+
+---
+
+# 🧰 CLI Options
+
+### `cta_deface_pipeline_multi.py`
+
+| Option | Description |
+|--------|-------------|
+| `-i, --dicom-root-in` | Root folder containing DICOM case directories |
+| `-o, --dicom-root-out` | Output directory for defaced DICOMs |
+| `--nifti-root-out` | Optional directory to store defaced NIfTIs per case |
+| `-w, --work-root` | Working directory for intermediate files |
+| `--cta-extra-args ...` | Extra args passed directly to run_CTA-DEFACE.py |
+| `-h, --help` | Show help message |
+
+---
+
+# 🛠 Advanced Usage
+
+### Extra nnUNet arguments
+
+```bash
+python cta_deface_pipeline_multi.py \
+  -i dicom_root \
+  -o dicom_out \
+  --cta-extra-args --num_workers 1 --patch_size 192
+```
+
+### Custom work directory
+
+```bash
+python cta_deface_pipeline_multi.py \
+  -i dicom_root \
+  -o dicom_out \
+  -w /fast_ssd/tmp
+```
+
+---
+
+# 🔬 Supported Input Layouts
+
+### **Single-case directory**
+
+```
+dicom_input/
+    IMG_0001.dcm
+    IMG_0002.dcm
+```
+
+### **Multi-case directory**
+
+```
+dicom_root/
+    patient01/
+        *.dcm
+    patient02/
+        *.dcm
+```
+
+Both modes are supported automatically.
+
+---
+
+# 🧪 Known Issues & Automatic Handling
+
+### **1. CTA-DEFACE crashes when loading `<SeriesUID>_0000.nii.gz`**
+
+This is a known issue with the segmentation model.
+
+The pipeline:
+
+- Ignores the crash  
+- Continues processing  
+- Uses the correct non-`_0000` NIfTI  
+- Completes normally  
+
+### **2. Slice-count mismatches**
+
+- Updates the first matching slices  
+- Copies remaining unchanged  
+- Avoids crashing  
+- Keeps consistent DICOM format  
+
+---
+
+# 🧹 Cleaning Up
+
+Remove intermediate data:
+
+```bash
+rm -rf work_deface_batch/
+```
+
+This does **not** remove final defaced DICOMs or NIfTIs.
+
+---
+
+# 🙌 Credits
+
+Developed by **jsfakian**
+
+Enhancements include:
+
+- CPU-only execution
+- Robust multi-case batch processor
+- Header-preserving DICOM reconstruction
+- Safer nnUNet inference handling
+- Improved slice/series matching logic
+- Error-tolerant pipeline design
+
+---
 
 
- 
- 
+

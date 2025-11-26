@@ -1,0 +1,17 @@
+# Core scientific stack
+numpy>=1.24
+scipy>=1.10
+nibabel>=5.0
+tqdm>=4.65
+scikit-image>=0.21
+
+# DICOM / conversion helpers (used by dicom/nifti scripts)
+pydicom>=2.4
+SimpleITK>=2.2
+
+# nnUNet v2 as used by CTA-DEFACE
+nnunetv2>=2.4
+
+# Google Drive downloader for auto-fetching the model
+gdown>=5.0
+

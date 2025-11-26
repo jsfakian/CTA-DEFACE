@@ -7,6 +7,51 @@ import nibabel as nib
 import numpy as np
 import re
 import torch
+#
+###----pre-processing step in run_CTA-DEFACE.py that:
+#looks for *.nii.gz not ending in _0000.nii.gz
+#creates a symlink (or copy) with the correct name so nnUNet is happy
+#
+import os
+import glob
+import shutil
+
+def ensure_nnunet_naming(input_dir, suffix="_0000.nii.gz", copy=False):
+    """
+    For every *.nii.gz in input_dir that does NOT end with `_0000.nii.gz`,
+    create a symlink (or copy) with the correct nnUNet-style name.
+
+    input_dir: folder with your CTA/CT nifti files
+    suffix:    modality suffix, default '_0000.nii.gz'
+    copy:      if True, copy files instead of symlink (e.g. for NFS or Windows)
+    """
+    input_dir = os.path.abspath(input_dir)
+
+    for path in glob.glob(os.path.join(input_dir, "*.nii.gz")):
+        fname = os.path.basename(path)
+        if fname.endswith(suffix):
+            continue  # already nnUNet-compatible
+
+        # Strip .nii.gz
+        if fname.endswith(".nii.gz"):
+            stem = fname[:-7]  # remove ".nii.gz"
+        else:
+            stem, _ = os.path.splitext(fname)
+
+        new_fname = stem + suffix
+        new_path = os.path.join(input_dir, new_fname)
+
+        if os.path.exists(new_path):
+            # Don't overwrite if the correct file already exists
+            continue
+
+        if copy:
+            shutil.copy2(path, new_path)
+        else:
+            # symlink relative path (works best on Linux)
+            os.symlink(fname, new_path)
+
+        print(f"[nnUNet rename] {fname} -> {new_fname}")
 
 
 os.environ['nnUNet_results'] = './model'
@@ -27,9 +72,9 @@ def run_nnunet_inference(input_folder, output_folder):
         "-c", "3d_fullres",
         "-f", "all",
         "--disable_tta",           # disable test-time augmentation for speed
-        "-device", "cuda"          # force GPU usage
+        "-device", "cpu"          # force GPU usage
     ]
-    
+
     print("Executing command:", " ".join(command))
     result = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     print("Command output (if any):", result.stdout)
