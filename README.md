@@ -139,12 +139,11 @@ cd CTA-DEFACE
 
 ### Multi-case batch defacing (recommended)
 ```powershell
-.
-un_cta_deface_batch.ps1 `
+cd $HOME\CTA-DEFACE
+
+.\run_cta_deface_batch.ps1 `
     -DicomRootIn  ".\dicom_input" `
-    -DicomRootOut ".\dicom_output" `
-    -NiftiRootOut ".
-ifti_output"
+    -DicomRootOut ".\dicom_output"
 ```
 
 ---
