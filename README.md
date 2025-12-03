@@ -139,7 +139,8 @@ cd CTA-DEFACE
 
 ### Multi-case batch defacing (recommended)
 ```powershell
-.un_cta_deface_batch.ps1 `
+.
+un_cta_deface_batch.ps1 `
     -DicomRootIn  ".\dicom_input" `
     -DicomRootOut ".\dicom_output" `
     -NiftiRootOut ".
@@ -191,21 +192,6 @@ python cta_deface_pipeline_multi2.py     -i <dicom_root_in>     -o <dicom_root_o
 
 ---
 
-# 🧪 Troubleshooting
-
-### Problem: “CTA-DEFACE produced only mask”
-- Means the defaced NIfTI was not generated  
-- Check `work_deface_batch/<case>/nifti_out/`
-
-### Problem: Orientation looks wrong
-- Many viewers interpret DICOM Z-axis differently  
-- Pixel data is preserved exactly except for face area
-
-### Problem: No DICOM series found
-Ensure your files are valid DICOM slices (with series tags).
-
----
-
 # 📚 Citation
 
 Please cite:
@@ -215,10 +201,4 @@ _European Radiology Experimental_
 
 ---
 
-# 📬 Support
-
-If you find issues:
-- Open a GitHub issue  
-- Include logs under:
-  `work_deface_batch/<case>/`
 
