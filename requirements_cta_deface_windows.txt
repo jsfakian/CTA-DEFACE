@@ -1,0 +1,13 @@
+numpy>=1.24
+SimpleITK>=2.3
+nibabel>=5.2
+pydicom>=2.4
+scipy>=1.11
+tqdm>=4.66
+
+# nnUNetv2 core (model/experiment handling)
+nnunetv2>=2.2
+
+# Optional but often needed utilities
+einops
+batchgenerators>=0.25
