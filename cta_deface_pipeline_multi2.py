@@ -571,6 +571,8 @@ def nifti_to_dicom_fullref(nifti_file: str, ref_dicom_dir: str, output_dir: str)
 
         # Apply chosen rotation
         slice_arr = np.rot90(slice_arr, k=best_k)
+        slice_arr = np.rot90(slice_arr, k=2) # Rotate 180
+        slice_arr = np.flip(slice_arr, axis=1)
 
         if slice_arr.shape != (ds.Rows, ds.Columns):
             raise RuntimeError(
