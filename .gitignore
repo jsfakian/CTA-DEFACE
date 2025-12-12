@@ -4,3 +4,8 @@ venv
 venv-win
 model
 head_ct_samples
+.venv_cta_deface/
+dicom_input
+dicom_output
+input_back
+work_deface_batch
