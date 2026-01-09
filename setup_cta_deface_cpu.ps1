@@ -1,7 +1,9 @@
 Param(
     [string]$PythonExe = "python",
-    [string]$VenvName = ".venv_cta_deface"
+    [string]$VenvName  = ".venv_cta_deface"
 )
+
+$ErrorActionPreference = "Stop"
 
 Write-Host "=== CTA-DEFACE CPU setup (Windows) ==="
 
@@ -10,10 +12,10 @@ Write-Host "=== CTA-DEFACE CPU setup (Windows) ==="
 # ------------------------
 Write-Host "[1/4] Checking Python..."
 try {
-    $pyVersion = & $PythonExe -c "import sys; print(sys.version.split()[0])"
-    Write-Host "Python version:" $pyVersion
+    $pyVersion = & $PythonExe -c 'import sys; print(sys.version.split()[0])'
+    Write-Host ("Python version: {0}" -f $pyVersion)
 } catch {
-    Write-Error "Could not run '$PythonExe'. Ensure Python is in PATH."
+    Write-Error ("Could not run '{0}'. Ensure Python is installed and in PATH." -f $PythonExe)
     exit 1
 }
 
@@ -23,8 +25,9 @@ try {
 $repoRoot = Split-Path -Parent $MyInvocation.MyCommand.Path
 $venvPath = Join-Path $repoRoot $VenvName
 
-Write-Host "[2/4] Creating / reusing virtual environment at $venvPath ..."
-if (-Not (Test-Path $venvPath)) {
+Write-Host ("[2/4] Creating / reusing virtual environment at {0} ..." -f $venvPath)
+
+if (-not (Test-Path $venvPath)) {
     & $PythonExe -m venv $venvPath
     if ($LASTEXITCODE -ne 0) {
         Write-Error "Failed to create virtual environment."
@@ -32,10 +35,15 @@ if (-Not (Test-Path $venvPath)) {
     }
     Write-Host "Virtual environment created."
 } else {
-    Write-Host "Virtual environment already exists – reusing."
+    Write-Host "Virtual environment already exists - reusing."
 }
 
 $venvPython = Join-Path $venvPath "Scripts\python.exe"
+
+if (-not (Test-Path $venvPython)) {
+    Write-Error ("Venv python not found at: {0}" -f $venvPython)
+    exit 1
+}
 
 # ------------------------
 # 3. Upgrade pip & install requirements
@@ -51,8 +59,8 @@ if ($LASTEXITCODE -ne 0) {
 
 # Install core requirements
 $reqFile = Join-Path $repoRoot "requirements_cta_deface_windows.txt"
-if (-Not (Test-Path $reqFile)) {
-    Write-Error "Requirements file not found: $reqFile"
+if (-not (Test-Path $reqFile)) {
+    Write-Error ("Requirements file not found: {0}" -f $reqFile)
     exit 1
 }
 
@@ -64,7 +72,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Install CPU-only PyTorch (official CPU index)
 Write-Host "Installing CPU-only PyTorch..."
-& $venvPython -m pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cpu
+& $venvPython -m pip install torch torchvision torchaudio --index-url "https://download.pytorch.org/whl/cpu"
 if ($LASTEXITCODE -ne 0) {
     Write-Error "Failed to install CPU-only PyTorch."
     exit 1
@@ -75,13 +83,15 @@ if ($LASTEXITCODE -ne 0) {
 # ------------------------
 Write-Host "[4/4] Running quick checks..."
 
-& $venvPython -c "import torch; print('Torch:', torch.__version__)"
+# Torch check (use single quotes in PS to avoid parser issues)
+& $venvPython -c 'import torch; print(\"Torch:\", torch.__version__)'
 if ($LASTEXITCODE -ne 0) {
     Write-Error "PyTorch test failed."
     exit 1
 }
 
-& $venvPython -c "import nnunetv2; print('nnUNetv2 OK')"
+# nnUNetv2 check
+& $venvPython -c 'import nnunetv2; print(\"nnUNetv2 OK\")'
 if ($LASTEXITCODE -ne 0) {
     Write-Error "nnUNetv2 import failed."
     exit 1
@@ -89,8 +99,8 @@ if ($LASTEXITCODE -ne 0) {
 
 Write-Host ""
 Write-Host "=== Setup complete! ==="
-Write-Host "Virtualenv: $venvPath"
+Write-Host ("Virtualenv: {0}" -f $venvPath)
 Write-Host "To activate in PowerShell:"
-Write-Host "    `& '$venvPath\Scripts\Activate.ps1'"
+Write-Host ("    & '{0}'" -f (Join-Path $venvPath "Scripts\Activate.ps1"))
 Write-Host "Then run:"
 Write-Host "    python cta_deface_pipeline_multi2.py -h"
