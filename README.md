@@ -112,7 +112,7 @@ python cta_deface_pipeline_multi2.py     -i dicom_input     -o dicom_output     
 
 # 🪟 Windows Installation (Step by Step)
 
-Install Git (Only once)
+### 1. Install Git (Only once)
 
 Git is required to download (clone) the project from GitHub.
 Steps
@@ -125,19 +125,19 @@ Steps
         Make sure "Git from the command line and also from 3rd-party software" is selected
     Finish installation
 
-Verify Git installation
+### 2. Verify Git installation
 
 Open PowerShell and run: git --version
 
 You should see something like: git version 2.x.x
-```
+
 
 ### 3. Run setup
 ```powershell
 .\setup_cta_deface_cpu.ps1
 ```
 
-### 4. (Optional) Activate environment
+### 4. Activate environment
 ```powershell
 .\.venv_cta_deface\Scripts\Activate.ps1
 ```
