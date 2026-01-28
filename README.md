@@ -132,13 +132,18 @@ Open PowerShell and run: git --version
 You should see something like: git version 2.x.x
 
 
-### 3. Run setup and download CTA_DEFACE model from google
+### 3. Clone this repo
+```powershell
+git clone https://github.com/jsfakian/CTA-DEFACE.git
+```
+
+### 4. Run setup and download CTA_DEFACE model from google
 ```powershell
 .\setup_cta_deface_cpu.ps1
 .\download_cta_deface_model.ps1
 ```
 
-### 4. Activate environment
+### 5. Activate environment
 ```powershell
 .\.venv_cta_deface\Scripts\Activate.ps1
 ```
