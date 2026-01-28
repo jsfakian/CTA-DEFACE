@@ -112,15 +112,24 @@ python cta_deface_pipeline_multi2.py     -i dicom_input     -o dicom_output     
 
 # 🪟 Windows Installation (Step by Step)
 
-### 1. Open PowerShell and enable scripts (one-time)
-```powershell
-Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
-```
+Install Git (Only once)
 
-### 2. Clone repo
-```powershell
-git clone https://github.com/jsfakian/CTA-DEFACE.git
-cd CTA-DEFACE
+Git is required to download (clone) the project from GitHub.
+Steps
+
+    Go to: https://git-scm.com/download/win
+    Download Git for Windows
+    Run the installer
+    During installation:
+        Keep the default options
+        Make sure "Git from the command line and also from 3rd-party software" is selected
+    Finish installation
+
+Verify Git installation
+
+Open PowerShell and run: git --version
+
+You should see something like: git version 2.x.x
 ```
 
 ### 3. Run setup
