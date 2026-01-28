@@ -132,9 +132,10 @@ Open PowerShell and run: git --version
 You should see something like: git version 2.x.x
 
 
-### 3. Run setup
+### 3. Run setup and download CTA_DEFACE model from google
 ```powershell
 .\setup_cta_deface_cpu.ps1
+.\download_cta_deface_model.ps1
 ```
 
 ### 4. Activate environment
@@ -144,15 +145,25 @@ You should see something like: git version 2.x.x
 
 ---
 
+# Prerequisites for run
+
+```
+mkdir dicom_input
+mkdir dicom_output
+mkdir work_deface_batch
+```
+
+Then place the input dicom images in dicom_input
+
+---
+
 # ▶️ Windows: Running the Pipeline
 
 ### Multi-case batch defacing (recommended)
 ```powershell
 cd $HOME\CTA-DEFACE
 
-.\run_cta_deface_batch.ps1 `
-    -DicomRootIn  ".\dicom_input" `
-    -DicomRootOut ".\dicom_output"
+python .\cta_deface_pipeline_multi2.py -i .\dicom_input\ -o .\dicom_output\ --nifti-root-out .\nifti_out\
 ```
 
 ---
