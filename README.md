@@ -112,62 +112,179 @@ python cta_deface_pipeline_multi2.py     -i dicom_input     -o dicom_output     
 
 # 🪟 Windows Installation (Step by Step)
 
-### 1. Install Git (Only once)
+## 1. Install Git (Only once)
 
 Git is required to download (clone) the project from GitHub.
 Steps
 
-    Go to: https://git-scm.com/download/win
-    Download Git for Windows
-    Run the installer
-    During installation:
+    1. Go to: https://git-scm.com/download/win
+    2. Download Git for Windows
+    3. Run the installer
+    4. During installation:
         Keep the default options
         Make sure "Git from the command line and also from 3rd-party software" is selected
-    Finish installation
+    5. Finish installation
 
-### 2. Verify Git installation
+### Git Installation Screenshots
+
+<img src="screenshots/git_install.png" width="400">
+<img src="screenshots/git_install2.png" width="400">
+<img src="screenshots/git_install3.png" width="400">
+<img src="screenshots/git_install4.png" width="400">
+<img src="screenshots/git_install5.png" width="400">
+<img src="screenshots/git_install6.png" width="400">
+<img src="screenshots/git_install7.png" width="400">
+<img src="screenshots/git_install8.png" width="400">
+<img src="screenshots/git_install9.png" width="400">
+<img src="screenshots/git_install10.png" width="400">
+<img src="screenshots/git_install11.png" width="400">
+<img src="screenshots/git_install12.png" width="400">
+<img src="screenshots/git_install13.png" width="400">
+<img src="screenshots/git_install14.png" width="400">
+<img src="screenshots/git_install15.png" width="400">
+<img src="screenshots/git_install16.png" width="400">
+<img src="screenshots/git_install17.png" width="400">
+
+## 2. Verify Git installation
 
 Open PowerShell and run: git --version
 
 You should see something like: git version 2.x.x
 
+### How to open PowerShell
 
-### 3. Clone this repo
-```powershell
+1. Click the **Start** button (or press the **Windows key**)
+2. Type **PowerShell**
+3. Click **Windows PowerShell**
+
+![Open PowerShell](screenshots/powershell.png)
+
+## 3. Install python 3.12
+
+### 🐍 Step 1: Go to the official Python website
+
+Open your browser and visit:
+
+👉 https://www.python.org
+
+![Go to Python website](screenshots/python-website.png)
+
+Then:
+
+Hover over Downloads
+
+Click Windows
+
+![Select Windows](screenshots/click-windows.png)
+
+### 🐍 Step 2: Download Python 3.12 installer
+
+On the Windows downloads page:
+
+Find Python 3.12.x
+
+Click “Download Python 3.12.x”
+
+![Get Python 3.12](screenshots/find-python-3.12.png)
+
+This downloads a file like:
+
+```
+python-3.12.x-amd64.exe
+```
+
+### 🐍 Step 3: Run the installer (IMPORTANT)
+
+Double-click the downloaded .exe file.
+
+⚠️ Before clicking Install, do this:
+
+✅ Check “Add Python 3.12 to PATH”
+✅ Then click “Install Now”
+
+This step is critical.
+
+![Install Python](screenshots/python-installer.png)
+
+### 🐍 Step 4: Finish installation
+
+Wait for installation to complete
+
+Click Close
+
+If prompted about long path support → Allow
+
+### 🧪 Step 5: Verify Python installation
+
+Open PowerShell and run:
+
+```
+python --version
+```
+
+You should see:
+```
+Python 3.12.x
+```
+
+## 4. Clone this repo (one time)
+
+1. Select a directory to clone the repo (e.g., documents)
+2. Clone the repo
+
+In the Powershell terminal run:
+```
+cd C:\Users\<username>\Documents
+```
+```
 git clone https://github.com/jsfakian/CTA-DEFACE.git
 ```
 
-### 4. Run setup and download CTA_DEFACE model from google
-```powershell
+## 5. Run setup and download `CTA_DEFACE` model from google
+
+1. First allow Powershell to run ps1 scripts
+2. Setup CTA deface
+3. Download CTA deface model
+
+In the PowerShell terminal run:
+
+```
+Set-ExecutionPolicy -Scope CurrentUser RemoteSigned
 .\setup_cta_deface_cpu.ps1
 .\download_cta_deface_model.ps1
 ```
 
-### 5. Activate environment
-```powershell
-.\.venv_cta_deface\Scripts\Activate.ps1
-```
-
 ---
 
-# Prerequisites for run
+# Prerequisites for run 
 
+## Prepare the required directories and the dicom images for defacing
+
+In the PowerShell terminal run:
 ```
 mkdir dicom_input
 mkdir dicom_output
 mkdir work_deface_batch
 ```
 
-Then place the input dicom images in dicom_input
+Then place the dicom images you want to deface in `dicom_input`
 
 ---
 
 # ▶️ Windows: Running the Pipeline
 
-### Multi-case batch defacing (recommended)
-```powershell
-cd $HOME\CTA-DEFACE
+### Multi-case batch defacing
 
+1. Open a PowerShell terminal
+2. Go to the directory of the CTA-DEFACE
+3. Activate the virtual environment of CTA-DEFACE
+4. Run the `cta_deface_pipeline_multi2.py` script
+
+Open a PowerShell terminal and run:
+
+```
+cd C:\Users\<username>\Documents\CTA-DEFACE
+.\.venv_cta_deface\Scripts\Activate.ps1
 python .\cta_deface_pipeline_multi2.py -i .\dicom_input\ -o .\dicom_output\ --nifti-root-out .\nifti_out\
 ```
 
